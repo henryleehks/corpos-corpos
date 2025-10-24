@@ -66,11 +66,29 @@ export default function ChallengeArena() {
       }
       
       const endTime = Date.now();
+      // Generate a solution based on the bug's correct answer
+      const possibleSolutions = [
+        bug.correctAnswer, // Correct solution
+        bug.code, // Original buggy code
+        bug.correctAnswer.replace('+', '-'), // Wrong operator
+        bug.correctAnswer.replace('return', 'console.log'), // Wrong output
+      ];
+
+      // Higher chance of correct solution for more advanced models
+      const correctnessChance = {
+        'gpt-4': 0.9,
+        'claude-3': 0.85,
+        'cohere': 0.7
+      }[model] || 0.5;
+
+      const isCorrect = Math.random() < correctnessChance;
+      const solution = isCorrect ? bug.correctAnswer : possibleSolutions[Math.floor(Math.random() * possibleSolutions.length)];
+
       llmChallenges[model] = {
         startTime,
         endTime,
-        solution: `Simulated solution from ${model}`,
-        isCorrect: Math.random() > 0.2, // Simulated correctness
+        solution,
+        isCorrect,
       };
       
       // Mark this model as done
